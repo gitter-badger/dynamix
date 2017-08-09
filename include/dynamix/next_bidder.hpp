@@ -36,13 +36,13 @@ auto call_next_bidder(Mixin* mixin, Message* message, Args&&... args)
     {
         auto ptr = entry.begin;
         // since this is called from a mixin this loop must end eventually
-        while ((*ptr++)->_mixin_id != mixin_info.id);
+        while ((*ptr++)->_mixin_id != mixin_info.id) DYNAMIX_ASSERT(ptr < entry.end);
         DYNAMIX_THROW_UNLESS(ptr < entry.end, bad_next_bidder_call);
         const internal::message_for_mixin* msg_data = *ptr;
         auto data = _DYNAMIX_GET_MIXIN_DATA((*obj), msg_data->_mixin_id);
 
         auto func = reinterpret_cast<typename Message::caller_func>(msg_data->caller);
-        return func(data, args...);
+        return func(data, std::forward<Args>(args)...);
     }
     else
     {
